@@ -3,7 +3,7 @@
 		ad9361_clkin: clock@0 {
 			#clock-cells = <0>;
 			compatible = "adjustable-clock";
-			clock-frequency = <40000000>;
+			clock-frequency = <28800000>;
 			clock-accuracy = <200000>; /* 200 ppm (ppb) */
 			clock-output-names = "ad9361_ext_refclk";
 		};
@@ -234,7 +234,9 @@
 		adi,aux-dac2-rx-delay-us = <0>;
 		adi,aux-dac2-tx-delay-us = <0>;
 	};
+};
 
+&spi1 {
 	adc1_ad9361: ad9361-phy-B@1 {
 		#address-cells = <1>;
 		#size-cells = <0>;
