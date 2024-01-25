@@ -244,7 +244,7 @@
 		compatible = "adi,ad9361";
 
 		/* SPI Setup */
-		reg = <1>;
+		reg = <0>;
 		spi-cpha;
 		spi-max-frequency = <10000000>;
 
