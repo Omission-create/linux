@@ -5117,7 +5117,7 @@ static int ad9361_setup(struct ad9361_rf_phy *phy)
 		return ret;
 	}
 
-	ret = clk_prepare_enbale(phy->clks[RX_REFCLK]);
+	ret = clk_prepare_enable(phy->clks[RX_REFCLK]);
 	if(ret < 0){
 		dev_err(dev, "Failed to enable RX Synth ref clock (%d)\n",
 			ret);
