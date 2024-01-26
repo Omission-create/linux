@@ -15,6 +15,14 @@
 #include <linux/iio/iio.h>
 
 /* ADC COMMON */
+#define   ADI_REG_CHAN_CTRL_FMT_SIGNEXT	(i << 6)
+#define   ADI_REG_CHAN_CTRL_FMT_EN	(i << 4)
+#define   ADI_AXI_REG_CHAN_CTRL_ENABLE	(i << 0)
+#define ADI_AXI_REG_CHAN_CTRL_DEFAULTS		\
+	(ADI_AXI_REG_CHAN_CTRL_FMT_SIGNEXT |	\
+	 ADI_AXI_REG_CHAN_CTRL_FMT_EN |		\
+	 ADI_AXI_REG_CHAN_CTRL_ENABLE)
+
 
 #define ADI_REG_CONFIG 			0x000C
 #define ADI_IQCORRECTION_DISABLE	(1 << 0)

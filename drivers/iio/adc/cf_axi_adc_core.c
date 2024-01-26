@@ -1214,6 +1214,17 @@ static int axiadc_probe(struct platform_device *pdev)
 	st->iio_info.attrs = conv->attrs;
 	indio_dev->info = &st->iio_info;
 
+	for(int i=0; i<conv->chip_info->num_channels; i++)
+		axiadc_write(st, ADI_REG_CHAN_CNTRL(i), ADI_REG_CHAN_CTRL_DEFAULTS);
+
+	mdelay(100);
+	unsigned int reg_data = axiadc_read(st, ADI_REG_STATUS);
+	if(reg_data == 0x0)
+	{
+		dev_err(&pdev->dev,"Status errors\n");
+		return -ENODEV;		
+	}
+
 	if (conv->post_setup) {
 		ret = conv->post_setup(indio_dev);
 		if (ret < 0)

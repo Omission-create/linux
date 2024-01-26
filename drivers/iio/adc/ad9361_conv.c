@@ -652,7 +652,7 @@ static int ad9361_post_setup(struct iio_dev *indio_dev)
 	bool rx2tx2 = ad9361_uses_rx2tx2(phy);
 	bool half_rate = ad9361_axi_half_dac_rate(phy);
 	unsigned tmp, num_chan, flags;
-	unsigned int skipmode;
+	unsigned int skipmode, id;
 	int i, ret;
 
 	skipmode = ad9361_get_dig_interface_tune_skipmode(phy);
@@ -667,19 +667,19 @@ static int ad9361_post_setup(struct iio_dev *indio_dev)
 
 	if (!rx2tx2) {
 		axiadc_write(st, 0x4048, tmp | BIT(5)); /* R1_MODE */
-		if (!half_rate)
+//		if (!half_rate)
 			axiadc_write(st, 0x404c,
 			     ad9361_uses_lvds_mode(phy) ? 1 : 0); /* RATE */
-		else
-			axiadc_write(st, 0x404c, 0);
+//		else
+//			axiadc_write(st, 0x404c, 0);
 	} else {
 		tmp &= ~BIT(5);
 		axiadc_write(st, 0x4048, tmp);
-		if (!half_rate)
+//		if (!half_rate)
 			axiadc_write(st, 0x404c,
 			     ad9361_uses_lvds_mode(phy) ? 3 : 1); /* RATE */
-		else
-			axiadc_write(st, 0x404c, 1);
+//		else
+//			axiadc_write(st, 0x404c, 1);
 	}
 
 	for (i = 0; i < num_chan; i++) {
@@ -694,16 +694,14 @@ static int ad9361_post_setup(struct iio_dev *indio_dev)
 
 	flags = 0;
 
-	ret = ad9361_dig_tune(phy, 61440000, axiadc_read(st, ADI_AXI_REG_ID) ?
-		flags | RESTORE_DEFAULT : flags);
+	id = axiadc_read(st, ADI_AXI_REG_ID);
+	ret = ad9361_dig_tune(phy, 61440000, (id) ? flags | RESTORE_DEFAULT : flags);
 	if (ret < 0)
 		goto error;
 
 	if (flags & (DO_IDELAY | DO_ODELAY)) {
 		ret = ad9361_dig_tune(phy, 61440000,
-			axiadc_read(st, ADI_AXI_REG_ID) ?
-			flags | RESTORE_DEFAULT | BE_VERBOSE :
-			flags | BE_VERBOSE);
+			(id) ? flags | RESTORE_DEFAULT | BE_VERBOSE : flags | BE_VERBOSE);
 		if (ret < 0)
 			goto error;
 	}
