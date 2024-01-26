@@ -5016,7 +5016,7 @@ static int ad9361_setup(struct ad9361_rf_phy *phy)
 
 	ret = clk_prepare_enable(phy->clk_refin);
         if (ret < 0){
-                dev_err(dev,"Failed to enable BB ref clock rate (%d)\n"，
+                dev_err(dev,"Failed to enable BB ref clock rate (%d)\n",
                         ret);
                 return ret;
         }
