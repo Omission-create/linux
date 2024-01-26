@@ -4952,6 +4952,8 @@ static int ad9361_setup(struct ad9361_rf_phy *phy)
 	struct ad9361_phy_platform_data *pd = phy->pdata;
 	u32 real_rx_bandwidth, real_tx_bandwidth;
 	int ret;
+	bool tmp_use_ext_rx_lo = pd->use_ext_rx_lo;
+	bool tmp_use_ext_tx_lo = pd->use_ext_tx_lo;
 
 	pd->rf_rx_bandwidth_Hz = ad9361_validate_rf_bw(phy, pd->rf_rx_bandwidth_Hz);
 	pd->rf_tx_bandwidth_Hz = ad9361_validate_rf_bw(phy, pd->rf_tx_bandwidth_Hz);
@@ -5005,20 +5007,24 @@ static int ad9361_setup(struct ad9361_rf_phy *phy)
 			DIGITAL_POWER_UP | CLOCK_ENABLE_DFLT | BBPLL_ENABLE |
 			(pd->use_extclk ? XO_BYPASS : 0)); /* Enable Clocks */
 
-	ret = clk_prepare_enable(phy->clk_refin);
-	if (ret < 0)
-		return ret;
-
-	ret = devm_add_action_or_reset(dev, ad9361_clk_disable, phy->clk_refin);
-	if (ret)
-		return ret;
-
 	ret = clk_set_rate(phy->clks[BB_REFCLK], ref_freq);
 	if (ret < 0) {
 		dev_err(dev, "Failed to set BB ref clock rate (%d)\n",
 			ret);
 		return ret;
 	}
+
+	ret = clk_prepare_enable(phy->clk_refin);
+        if (ret < 0){
+                dev_err(dev,"Failed to enable BB ref clock rate (%d)\n"，
+                        ret);
+                return ret;
+        }
+
+        ret = devm_add_action_or_reset(dev, ad9361_clk_disable, phy->clk_refin);
+        if (ret)
+                return ret;
+
 
 	ad9361_spi_write(spi, REG_FRACT_BB_FREQ_WORD_2, 0x12);
 	ad9361_spi_write(spi, REG_FRACT_BB_FREQ_WORD_3, 0x34);
@@ -5101,12 +5107,26 @@ static int ad9361_setup(struct ad9361_rf_phy *phy)
 	if (ret < 0)
 		return ret;
 
+	phy->pdata->use_ext_rx_lo = 0;
+	phy->pdata->use_ext_tx_lo = 0;
+
 	ret = clk_set_rate(phy->clks[RX_RFPLL], ad9361_to_clk(pd->rx_synth_freq));
 	if (ret < 0) {
 		dev_err(dev, "Failed to set RX Synth rate (%d)\n",
 			ret);
 		return ret;
 	}
+
+	ret = clk_prepare_enbale(phy->clks[RX_REFCLK]);
+	if(ret < 0){
+		dev_err(dev, "Failed to enable RX Synth ref clock (%d)\n",
+			ret);
+		return ret;
+	}
+
+	ret = devm_add_action_or_reset(dev, ad9361_clk_disable, phy->clks[RX_REFCLK]);
+	if(ret < 0)
+		return ret;
 
 	ret = clk_prepare_enable(phy->clks[RX_RFPLL]);
 	if (ret < 0)
@@ -5125,6 +5145,17 @@ static int ad9361_setup(struct ad9361_rf_phy *phy)
 		return ret;
 	}
 
+	ret = clk_prepare_enable(phy->clks[TX_REFCLK]);
+	if(ret < 0){
+		dev_err(dev,"Failed to enable TX Synth ref clock (&d)\n",
+			ret);
+		return ret;
+	}
+
+	ret = devm_add_action_or_reset(dev, ad9361_clk_disable, phy->clks[TX_REFCLK]);
+	if(ret)
+		return ret;
+
 	ret = clk_prepare_enable(phy->clks[TX_RFPLL]);
 	if (ret < 0)
 		return ret;
@@ -5132,6 +5163,9 @@ static int ad9361_setup(struct ad9361_rf_phy *phy)
 	ret = devm_add_action_or_reset(dev, ad9361_clk_disable, phy->clks[TX_RFPLL]);
 	if (ret)
 		return ret;
+
+	phy->pdata->use_ext_rx_lo = tmp_use_ext_rx_lo;
+	phy->pdata->use_ext_tx_lo = tmp_use_ext_tx_lo;
 
 	clk_set_parent(phy->clks[RX_RFPLL],
 			pd->use_ext_rx_lo ? phy->clk_ext_lo_rx :

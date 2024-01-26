@@ -387,6 +387,7 @@ static int adi_axi_adc_probe(struct platform_device *pdev)
 	struct adi_axi_adc_client *cl;
 	struct adi_axi_adc_state *st;
 	unsigned int ver;
+	unsigned int reg_data;
 	int ret;
 
 	cl = adi_axi_adc_attach_client(&pdev->dev);
@@ -441,6 +442,12 @@ static int adi_axi_adc_probe(struct platform_device *pdev)
 	ret = adi_axi_adc_setup_channels(&pdev->dev, st);
 	if (ret)
 		return ret;
+
+	reg_data = adi_axi_adc_read(st, AXI_ADC_REG_STATUS);
+	if(reg_data == 0x0){
+		dev_err(&pdev->dev, "Status errors\n");
+		return -1;
+	}
 
 	ret = devm_iio_device_register(&pdev->dev, indio_dev);
 	if (ret)
