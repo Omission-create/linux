@@ -39,8 +39,8 @@
 		adi,lvds-rx-onchip-termination-enable;
 
 		adi,rx-data-clock-delay = <0>;
-		adi,rx-data-delay = <9>;
-		adi,tx-fb-clock-delay = <4>;
+		adi,rx-data-delay = <4>;
+		adi,tx-fb-clock-delay = <7>;
 		adi,tx-data-delay = <0>;
 
 		//adi,fdd-rx-rate-2tx-enable;
@@ -265,8 +265,8 @@
 		adi,lvds-rx-onchip-termination-enable;
 
 		adi,rx-data-clock-delay = <0>;
-		adi,rx-data-delay = <9>;
-		adi,tx-fb-clock-delay = <4>;
+		adi,rx-data-delay = <4>;
+		adi,tx-fb-clock-delay = <7>;
 		adi,tx-data-delay = <0>;
 
 		//adi,fdd-rx-rate-2tx-enable;
